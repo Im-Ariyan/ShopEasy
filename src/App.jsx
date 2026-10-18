@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from './auth/useAuth.js'
+import { WishlistProvider } from './context/WishlistContext.jsx'
+import { useWishlist } from './context/useWishlist.js'
 import { requireSupabase } from './lib/supabase.js'
 import AdminAccessPage from './pages/AdminAccessPage.jsx'
 import AuthPage from './pages/AuthPage.jsx'
@@ -13,6 +15,7 @@ import ProductDetailsPage from './pages/ProductDetailsPage.jsx'
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx'
 import ShopPage from './pages/ShopPage.jsx'
 import SettingsPage from './pages/SettingsPage.jsx'
+import WishlistPage from './pages/WishlistPage.jsx'
 import './App.css'
 
 const navigation = [
@@ -61,6 +64,7 @@ function RequireAuth() {
 function StoreLayout() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { productIds: wishlistProductIds, loadError: wishlistError } = useWishlist()
   const username = user.user_metadata?.username?.trim() || user.email?.split('@')[0] || 'there'
   const [error, setError] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
@@ -130,6 +134,9 @@ function StoreLayout() {
               <div className="account-menu" id="account-menu">
                 <div className="menu-greeting">Hi, {username}</div>
                 <Link to="/orders" onClick={() => setMenuOpen(false)}>Your orders</Link>
+                <Link to="/wishlist" onClick={() => setMenuOpen(false)}>
+                  Wishlist{wishlistProductIds.length > 0 ? ` (${wishlistProductIds.length})` : ''}
+                </Link>
                 {isAdmin && <Link to="/admin" onClick={() => setMenuOpen(false)}>Admin dashboard</Link>}
                 <Link to="/settings" onClick={() => setMenuOpen(false)}>Settings</Link>
                 <button type="button" onClick={handleSignOut}>Sign out</button>
@@ -138,7 +145,7 @@ function StoreLayout() {
           </div>
         </div>
       </header>
-      {error && <p className="global-error" role="alert">{error}</p>}
+      {(error || wishlistError) && <p className="global-error" role="alert">{error || wishlistError}</p>}
       <Outlet />
       <footer className="site-footer">
         <span>ShopEasy</span>
@@ -204,13 +211,14 @@ function App() {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route element={<RequireAuth />}>
-        <Route element={<StoreLayout />}>
+        <Route element={<WishlistProvider><StoreLayout /></WishlistProvider>}>
           <Route index element={<HomePage />} />
           <Route path="products" element={<ShopPage />} />
           <Route path="products/:productId" element={<ProductDetailsPage />} />
           <Route path="cart" element={<CartPage />} />
           <Route path="checkout" element={<CheckoutPage />} />
           <Route path="orders" element={<OrdersPage />} />
+          <Route path="wishlist" element={<WishlistPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="admin" element={<AdminAccessPage />} />
           <Route path="*" element={<NotFoundPage />} />

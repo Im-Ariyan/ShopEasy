@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { requireSupabase } from '../lib/supabase.js'
 import { currency, getVariant } from '../lib/shop-data.js'
 import ProductImage from './ProductImage.jsx'
+import WishlistButton from './WishlistButton.jsx'
 
 function ProductCard({ product }) {
   const navigate = useNavigate()
@@ -42,9 +43,12 @@ function ProductCard({ product }) {
 
   return (
     <article className="product-card">
-      <Link className="product-card-image-link" to={`/products/${product.id}`} aria-label={`View ${product.name}`}>
-        <ProductImage className="product-card-image" src={product.image_url} alt={product.name} />
-      </Link>
+      <div className="product-card-image-wrap">
+        <Link className="product-card-image-link" to={`/products/${product.id}`} aria-label={`View ${product.name}`}>
+          <ProductImage className="product-card-image" src={product.image_url} alt={product.name} />
+        </Link>
+        <WishlistButton className="product-card-wishlist" productId={product.id} productName={product.name} />
+      </div>
       <div className="product-card-content">
         <p className="product-category">{product.categories?.name}</p>
         <Link className="product-card-name" to={`/products/${product.id}`}>{product.name}</Link>

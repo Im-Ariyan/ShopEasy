@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { requireSupabase } from '../lib/supabase.js'
 import { currency } from '../lib/shop-data.js'
 import ProductImage from '../components/ProductImage.jsx'
+import WishlistButton from '../components/WishlistButton.jsx'
 
 function ProductDetailsPage() {
   const { productId } = useParams()
@@ -75,7 +76,10 @@ function ProductDetailsPage() {
         <ProductImage className="product-detail-image" src={product.image_url} alt={product.name} />
         <div className="product-detail-info">
           <p className="eyebrow">{product.categories?.name}</p>
-          <h1>{product.name}</h1>
+          <div className="product-detail-title-row">
+            <h1>{product.name}</h1>
+            <WishlistButton productId={product.id} productName={product.name} />
+          </div>
           <p className="product-detail-price">{currency.format(Number(product.price))}</p>
           <p className={`stock-label ${inStock ? 'stock-available' : 'stock-unavailable'}`}>{inStock ? 'In stock' : 'Out of stock'}</p>
           <p className="product-description">{product.description}</p>

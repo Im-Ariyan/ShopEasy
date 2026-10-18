@@ -52,7 +52,8 @@ replace the Supabase database.
 
    1. `supabase/migrations/202610180001_is_shop_admin.sql`
    2. `supabase/migrations/20261018000200_shopping_schema.sql`
-   3. `supabase/seed.sql`
+   3. `supabase/migrations/202610180003_wishlist.sql`
+   4. `supabase/seed.sql`
 
    The migration adds tables with `IF NOT EXISTS` and the seed uses unique slugs
    and `ON CONFLICT DO NOTHING`. Apply it first in a project with no ShopEasy
@@ -123,7 +124,8 @@ application never stores passwords itself.
 1. Register/sign in using Supabase Auth. Confirm the email if confirmation is
    enabled.
 2. Open **Explore the shop**. The page reads active categories, products, and
-   size-specific variant stock from Supabase.
+   size-specific variant stock from Supabase. Use the heart on a product to add
+   it to your saved wishlist, then open **Wishlist** from the account menu.
 3. Select a collection, search/sort, choose an in-stock size and quantity, and
    click **Add to Bag**. Use the header bag icon to check the saved item and
    quantity. The count reloads on refresh and updates after cart mutations.
