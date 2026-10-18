@@ -1,5 +1,7 @@
 # ShopEasy
 
+An e-commerce shopping website built with React, Vite, and Supabase.
+
 ShopEasy is a React + Vite storefront using Supabase Auth and PostgreSQL. The
 application includes the shop, size-aware product variants, a persistent user
 bag, COD checkout, customer order tracking/cancellation, and an administrator
