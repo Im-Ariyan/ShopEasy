@@ -106,9 +106,10 @@ profile fields are never used to authorize admin access.
 Set Site URL to `http://127.0.0.1:5173` and add
 `http://127.0.0.1:5173/**` to Redirect URLs when running Vite with
 `--host 127.0.0.1`. For a hosted site, also add its deployed URL and
-`https://your-site.example/**` to Redirect URLs. The forgot-password flow
-returns to `/reset-password`, so that path must be allowed. Keep the dev server
-running while opening local email links.
+`https://your-site.example/**` to Redirect URLs. Registration confirmation
+returns to the same site at `/login`; password recovery returns to
+`/reset-password`. Both paths must be allowed for the site you use. Keep the
+dev server running while opening local email links.
 
 ### Password recovery
 

@@ -49,7 +49,10 @@ function AuthPage({ isRegister = false }) {
         ? await client.auth.signUp({
             email: email.trim(),
             password,
-            options: { data: { username: username.trim() } },
+            options: {
+              data: { username: username.trim() },
+              emailRedirectTo: `${window.location.origin}/login`,
+            },
           })
         : await client.auth.signInWithPassword({ email: email.trim(), password })
 
