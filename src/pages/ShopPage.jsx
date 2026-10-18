@@ -75,7 +75,7 @@ function ShopPage() {
   return (
     <main className="page-shell">
       <section className="shop-heading">
-        <p className="eyebrow">The ShopEasy edit</p>
+        <p className="eyebrow">Style that moves with you</p>
         <h1>Explore the shop</h1>
         <p>Thoughtful everyday clothing and accessories, selected for your wardrobe.</p>
       </section>
