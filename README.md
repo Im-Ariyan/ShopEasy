@@ -15,6 +15,34 @@ commerce features can access data.
 - RLS on every application table
 - Public/publishable Supabase browser key only
 
+## Deploy to Netlify
+
+1. Push the project to GitHub, then in Netlify choose **Add new site → Import
+   an existing project** and connect the `Im-Ariyan/ShopEasy` repository.
+2. Configure the site build:
+   - Build command: `npm run build`
+   - Publish directory: `dist`
+   - Base directory: leave blank
+3. In **Site configuration → Environment variables**, add:
+   - `VITE_SUPABASE_URL` — your Supabase project URL
+   - `VITE_SUPABASE_ANON_KEY` — your Supabase publishable/anon key
+
+   Use the public publishable/anon key only. Never add a database password or
+   service-role key. These `VITE_` values are included in the browser build.
+4. In Supabase **Authentication → URL Configuration**, set **Site URL** to your
+   deployed Netlify URL (for example, `https://your-site.netlify.app`). Add that
+   URL and `https://your-site.netlify.app/**` to **Redirect URLs**. Keep
+   `http://127.0.0.1:5173` and `http://127.0.0.1:5173/**` too for local
+   development. If you add a custom domain, add it there as well.
+5. Trigger a Netlify deploy. The `public/_redirects` file lets React Router
+   routes such as `/admin`, `/orders`, and `/products` work when opened or
+   refreshed directly.
+
+The live site uses the same Supabase database configured by these environment
+variables. Apply the SQL migrations and seed in the section below before
+testing the live shopping flow. Netlify hosts the frontend; it does not host or
+replace the Supabase database.
+
 ## Configure and apply SQL
 
 1. Copy `.env.example` to `.env`, then add the Supabase project URL and public
