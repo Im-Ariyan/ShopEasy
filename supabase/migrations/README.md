@@ -2,8 +2,10 @@
 
 Apply `202610180001_is_shop_admin.sql` followed by
 `20261018000200_shopping_schema.sql` to a new ShopEasy project in the Supabase
-SQL Editor. Run `../seed.sql` after the schema migration to add repeatable
-sample collections and products.
+SQL Editor. Apply `202610180003_admin_product_activation.sql` after those
+migrations to enable the administrator-only product activation function. Run
+`../seed.sql` after the schema migration to add repeatable sample collections
+and products.
 
 The schema migration defines categories/products/size variants, private cart
 and order tables, RLS policies, transactional COD checkout and cancellation,

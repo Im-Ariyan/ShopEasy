@@ -24,7 +24,8 @@ commerce features can access data.
 
    1. `supabase/migrations/202610180001_is_shop_admin.sql`
    2. `supabase/migrations/20261018000200_shopping_schema.sql`
-   3. `supabase/seed.sql`
+   3. `supabase/migrations/202610180003_admin_product_activation.sql`
+   4. `supabase/seed.sql`
 
    The migration adds tables with `IF NOT EXISTS` and the seed uses unique slugs
    and `ON CONFLICT DO NOTHING`. Apply it first in a project with no ShopEasy
@@ -43,6 +44,11 @@ does not read browser storage or editable profile data. Product writes,
 administrator order reads, administrator status updates, and dashboard summary
 are protected by RLS and/or database functions that call the same function.
 Registration never accepts a role.
+
+Product activation and deactivation use the administrator-only
+`admin_set_product_active` database function. It checks the verified admin
+identity and returns the resulting state, so a failed or unauthorized update
+does not appear successful in the dashboard.
 
 Customer order queries are scoped to `auth.uid()`. Order creation, cancellation,
 cart mutation, and admin status progression run through `SECURITY DEFINER`

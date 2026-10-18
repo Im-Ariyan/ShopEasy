@@ -37,6 +37,7 @@ function AdminAccessPage() {
   const [message, setMessage] = useState('')
   const [operationError, setOperationError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [updatingProductId, setUpdatingProductId] = useState('')
   const [updatingOrderId, setUpdatingOrderId] = useState('')
 
   useEffect(() => {
@@ -185,12 +186,21 @@ function AdminAccessPage() {
   async function setProductActive(product, active) {
     if (!active && !window.confirm(`Deactivate "${product.name}"? It will no longer appear in the shop.`)) return
     setOperationError('')
+    setMessage('')
+    setUpdatingProductId(product.id)
     try {
-      const { error } = await requireSupabase().from('products').update({ active }).eq('id', product.id)
+      const { data, error } = await requireSupabase().rpc('admin_set_product_active', {
+        p_product_id: product.id,
+        p_active: active,
+      })
       if (error) throw error
+      if (data !== active) throw new Error('The product status was not changed. Refresh the dashboard and try again.')
+      setMessage(`"${product.name}" ${active ? 'activated' : 'deactivated'}.`)
       await loadDashboard()
     } catch (deactivateError) {
       setOperationError(deactivateError.message || 'Unable to update the product status.')
+    } finally {
+      setUpdatingProductId('')
     }
   }
 
@@ -337,7 +347,19 @@ function AdminAccessPage() {
             <article className="admin-product-row" key={product.id}>
               <ProductImage src={product.image_url} alt={product.name} className="admin-product-image" />
               <div><strong>{product.name}</strong><span>{product.categories?.name ?? 'Uncategorized'} · {currency.format(Number(product.price))}</span><small>{(product.product_variants ?? []).map((variant) => `${variant.size_label}: ${variant.stock}`).join(' · ')}</small></div>
-              <div className="admin-row-actions"><button className="text-button" type="button" onClick={() => startEdit(product)}>Edit</button><button className="text-button" type="button" onClick={() => setProductActive(product, !product.active)}>{product.active ? 'Deactivate' : 'Activate'}</button></div>
+              <div className="admin-row-actions">
+                <button className="text-button" type="button" onClick={() => startEdit(product)}>Edit</button>
+                <button
+                  className="text-button"
+                  type="button"
+                  disabled={Boolean(updatingProductId)}
+                  onClick={() => setProductActive(product, !product.active)}
+                >
+                  {updatingProductId === product.id
+                    ? product.active ? 'Deactivating…' : 'Activating…'
+                    : product.active ? 'Deactivate' : 'Activate'}
+                </button>
+              </div>
             </article>
           ))}
         </div>
