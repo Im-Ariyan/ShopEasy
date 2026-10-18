@@ -107,9 +107,10 @@ Set Site URL to `http://127.0.0.1:5173` and add
 1. Sign in using the verified designated administrator account.
 2. Open `/admin`. If `is_shop_admin()` or the schema migration has not been
    applied, the dashboard must fail closed.
-3. Add/update/deactivate products, adjust stock, and add/edit/remove categories.
-   Removing a category sets its product category to null; it does not delete
-   those products.
+3. Add/update products and adjust stock. Active and deactivated products appear
+   in separate lists; use **Reactivate** in the deactivated list to return a
+   product to the shop. Add/edit/remove categories. Removing a category sets its
+   product category to null; it does not delete those products.
 4. Advance an order one step at a time through Confirmed, Packed, Shipped,
    Out for Delivery, and Delivered. The database function rejects skipped
    transitions and cancelled orders.

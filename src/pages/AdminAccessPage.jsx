@@ -343,9 +343,9 @@ function AdminAccessPage() {
       </section>
 
       <section className="admin-section">
-        <h2>Products</h2>
+        <h2>Active products ({products.filter((product) => product.active).length})</h2>
         <div className="admin-product-list">
-          {products.map((product) => (
+          {products.filter((product) => product.active).map((product) => (
             <article className="admin-product-row" key={product.id}>
               <ProductImage src={product.image_url} alt={product.name} className="admin-product-image" />
               <div><strong>{product.name}</strong><span>{product.categories?.name ?? 'Uncategorized'} · {currency.format(Number(product.price))}</span><small>{(product.product_variants ?? []).map((variant) => `${variant.size_label}: ${variant.stock}`).join(' · ')}</small></div>
@@ -357,13 +357,40 @@ function AdminAccessPage() {
                   disabled={Boolean(updatingProductId)}
                   onClick={() => setProductActive(product, !product.active)}
                 >
-                  {updatingProductId === product.id
-                    ? product.active ? 'Deactivating…' : 'Activating…'
-                    : product.active ? 'Deactivate' : 'Activate'}
+                  {updatingProductId === product.id ? 'Deactivating…' : 'Deactivate'}
                 </button>
               </div>
             </article>
           ))}
+          {products.every((product) => !product.active) && <p className="state-message">No active products.</p>}
+        </div>
+      </section>
+
+      <section className="admin-section">
+        <h2>Deactivated products ({products.filter((product) => !product.active).length})</h2>
+        <div className="admin-product-list">
+          {products.filter((product) => !product.active).map((product) => (
+            <article className="admin-product-row" key={product.id}>
+              <ProductImage src={product.image_url} alt={product.name} className="admin-product-image" />
+              <div>
+                <strong>{product.name}</strong>
+                <span>{product.categories?.name ?? 'Uncategorized'} · {currency.format(Number(product.price))}</span>
+                <small>{(product.product_variants ?? []).map((variant) => `${variant.size_label}: ${variant.stock}`).join(' · ')}</small>
+              </div>
+              <div className="admin-row-actions">
+                <button className="text-button" type="button" onClick={() => startEdit(product)}>Edit</button>
+                <button
+                  className="text-button"
+                  type="button"
+                  disabled={Boolean(updatingProductId)}
+                  onClick={() => setProductActive(product, true)}
+                >
+                  {updatingProductId === product.id ? 'Activating…' : 'Reactivate'}
+                </button>
+              </div>
+            </article>
+          ))}
+          {products.every((product) => product.active) && <p className="state-message">No deactivated products.</p>}
         </div>
       </section>
 
