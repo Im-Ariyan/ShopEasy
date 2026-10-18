@@ -12,7 +12,7 @@ export const supabase = isSupabaseConfigured
 export function requireSupabase() {
   if (!supabase) {
     throw new Error(
-      'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.',
+      'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your local .env file or deployment environment, then restart or redeploy.',
     )
   }
 

@@ -105,7 +105,17 @@ profile fields are never used to authorize admin access.
 
 Set Site URL to `http://127.0.0.1:5173` and add
 `http://127.0.0.1:5173/**` to Redirect URLs when running Vite with
-`--host 127.0.0.1`. Keep the dev server running while opening email links.
+`--host 127.0.0.1`. For a hosted site, also add its deployed URL and
+`https://your-site.example/**` to Redirect URLs. The forgot-password flow
+returns to `/reset-password`, so that path must be allowed. Keep the dev server
+running while opening local email links.
+
+### Password recovery
+
+On the sign-in page, choose **Forgot password?**, enter the account email, and
+open the Supabase email link. Choose and confirm a new password on the reset
+page, then sign in with it. Passwords are changed through Supabase Auth; the
+application never stores passwords itself.
 
 ## Customer flow test
 

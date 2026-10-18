@@ -12,7 +12,11 @@ function AuthPage({ isRegister = false }) {
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState(() => (
+    location.state?.passwordReset
+      ? 'Your password has been updated. Sign in with your new password.'
+      : ''
+  ))
 
   if (sessionLoading) {
     return <div className="auth-loading" role="status">Restoring your session…</div>
@@ -33,7 +37,7 @@ function AuthPage({ isRegister = false }) {
     setMessage('')
 
     if (!isSupabaseConfigured) {
-      setError('Supabase is not configured. Add the project URL and public key to .env, then restart Vite.')
+      setError('Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your local .env file or deployment environment, then restart or redeploy.')
       return
     }
 
@@ -122,6 +126,7 @@ function AuthPage({ isRegister = false }) {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
+          {!isRegister && <div className="auth-forgot-link"><Link to="/forgot-password">Forgot password?</Link></div>}
           {error && <p className="form-message form-error" role="alert">{error}</p>}
           {message && <p className="form-message form-success" role="status">{message}</p>}
           <button className="button button-primary auth-submit" type="submit" disabled={busy}>

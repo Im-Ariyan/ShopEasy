@@ -6,9 +6,11 @@ import AdminAccessPage from './pages/AdminAccessPage.jsx'
 import AuthPage from './pages/AuthPage.jsx'
 import CartPage from './pages/CartPage.jsx'
 import CheckoutPage from './pages/CheckoutPage.jsx'
+import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx'
 import OrdersPage from './pages/OrdersPage.jsx'
 import PlaceholderPage from './pages/PlaceholderPage.jsx'
 import ProductDetailsPage from './pages/ProductDetailsPage.jsx'
+import ResetPasswordPage from './pages/ResetPasswordPage.jsx'
 import ShopPage from './pages/ShopPage.jsx'
 import SettingsPage from './pages/SettingsPage.jsx'
 import './App.css'
@@ -199,6 +201,8 @@ function App() {
     <Routes>
       <Route path="/login" element={<AuthPage />} />
       <Route path="/register" element={<AuthPage isRegister />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route element={<RequireAuth />}>
         <Route element={<StoreLayout />}>
           <Route index element={<HomePage />} />
