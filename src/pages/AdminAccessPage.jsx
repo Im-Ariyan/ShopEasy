@@ -189,12 +189,14 @@ function AdminAccessPage() {
     setMessage('')
     setUpdatingProductId(product.id)
     try {
-      const { data, error } = await requireSupabase().rpc('admin_set_product_active', {
-        p_product_id: product.id,
-        p_active: active,
-      })
+      const { data, error } = await requireSupabase()
+        .from('products')
+        .update({ active })
+        .eq('id', product.id)
+        .select('id,active')
+        .single()
       if (error) throw error
-      if (data !== active) throw new Error('The product status was not changed. Refresh the dashboard and try again.')
+      if (data.active !== active) throw new Error('The product status was not changed. Refresh the dashboard and try again.')
       setMessage(`"${product.name}" ${active ? 'activated' : 'deactivated'}.`)
       await loadDashboard()
     } catch (deactivateError) {

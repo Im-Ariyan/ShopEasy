@@ -24,8 +24,7 @@ commerce features can access data.
 
    1. `supabase/migrations/202610180001_is_shop_admin.sql`
    2. `supabase/migrations/20261018000200_shopping_schema.sql`
-   3. `supabase/migrations/202610180003_admin_product_activation.sql`
-   4. `supabase/seed.sql`
+   3. `supabase/seed.sql`
 
    The migration adds tables with `IF NOT EXISTS` and the seed uses unique slugs
    and `ON CONFLICT DO NOTHING`. Apply it first in a project with no ShopEasy
@@ -45,10 +44,10 @@ administrator order reads, administrator status updates, and dashboard summary
 are protected by RLS and/or database functions that call the same function.
 Registration never accepts a role.
 
-Product activation and deactivation use the administrator-only
-`admin_set_product_active` database function. It checks the verified admin
-identity and returns the resulting state, so a failed or unauthorized update
-does not appear successful in the dashboard.
+Product activation and deactivation update the product row directly and request
+the changed row as confirmation. PostgreSQL RLS permits the operation only for
+the designated verified administrator; ordinary customers cannot activate or
+deactivate products.
 
 Customer order queries are scoped to `auth.uid()`. Order creation, cancellation,
 cart mutation, and admin status progression run through `SECURITY DEFINER`
