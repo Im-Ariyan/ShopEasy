@@ -96,7 +96,11 @@ function OrdersPage() {
     }
   }, [])
 
-  useEffect(() => { loadOrders() }, [loadOrders])
+  useEffect(() => {
+    loadOrders()
+    const refreshInterval = window.setInterval(loadOrders, 60_000)
+    return () => window.clearInterval(refreshInterval)
+  }, [loadOrders])
 
   async function cancelOrder(order) {
     if (!window.confirm(`Cancel order ${formatOrderId(order.id)}? The items will be returned to inventory.`)) return

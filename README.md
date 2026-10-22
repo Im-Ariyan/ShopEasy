@@ -53,7 +53,8 @@ replace the Supabase database.
    1. `supabase/migrations/202610180001_is_shop_admin.sql`
    2. `supabase/migrations/20261018000200_shopping_schema.sql`
    3. `supabase/migrations/202610180003_wishlist.sql`
-   4. `supabase/seed.sql`
+   4. `supabase/migrations/202610220001_auto_order_progression.sql`
+   5. `supabase/seed.sql`
 
    The migration adds tables with `IF NOT EXISTS` and the seed uses unique slugs
    and `ON CONFLICT DO NOTHING`. Apply it first in a project with no ShopEasy
@@ -142,6 +143,12 @@ application never stores passwords itself.
 8. Cancel a `placed` or `confirmed` order and verify status becomes `cancelled`
    and stock is restored once. Repeat the RPC call; it must fail without a
    second stock increase. Cancellation is unavailable after `packed`.
+
+   Order statuses progress automatically: orders are confirmed 5 minutes after
+   placement if the admin has not confirmed them, packed 30 minutes after
+   confirmation, and shipped 4 hours after packing. The admin can still manually
+   confirm or advance orders at any time. Customer and admin order pages refresh
+   automatically every minute while open.
 
 ## Administrator flow test
 

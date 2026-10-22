@@ -109,7 +109,12 @@ function AdminAccessPage() {
 
   useEffect(() => {
     if (!result.isAdmin) return
-    loadDashboard().catch((loadError) => setOperationError(loadError.message || 'Unable to load the admin dashboard.'))
+    const refreshDashboard = () => {
+      loadDashboard().catch((loadError) => setOperationError(loadError.message || 'Unable to load the admin dashboard.'))
+    }
+    refreshDashboard()
+    const refreshInterval = window.setInterval(refreshDashboard, 60_000)
+    return () => window.clearInterval(refreshInterval)
   }, [result.isAdmin, loadDashboard])
 
   function startEdit(product) {
