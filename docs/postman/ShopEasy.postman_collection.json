@@ -1,0 +1,299 @@
+{
+  "info": {
+    "_postman_id": "c7d84546-7cbb-4f4c-95da-5ae0994c0e63",
+    "name": "ShopEasy Supabase API",
+    "description": "Requests for Supabase Auth, PostgREST, and database RPC operations used by ShopEasy. This project has no custom Express API. Select the companion environment and use a non-production Supabase project for state-changing requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "{{anonKey}}",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{anonKey}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Supabase Auth",
+      "item": [
+        {
+          "name": "Register test customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"data\": {\n    \"username\": \"{{username}}\"\n  }\n}"
+            },
+            "url": "{{projectUrl}}/auth/v1/signup?redirect_to={{signupRedirectUrl}}",
+            "description": "May require email confirmation in the Supabase project. Use a disposable development account."
+          }
+        },
+        {
+          "name": "Sign in and save access token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "  const body = pm.response.json();",
+                  "  if (body.access_token) pm.environment.set('accessToken', body.access_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": "{{projectUrl}}/auth/v1/token?grant_type=password"
+          }
+        },
+        {
+          "name": "Request password recovery",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}"
+            },
+            "url": "{{projectUrl}}/auth/v1/recover?redirect_to={{redirectUrl}}",
+            "description": "Email delivery and allowed redirect URLs depend on Supabase Auth settings."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Catalogue",
+      "item": [
+        {
+          "name": "List active categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{anonKey}}"
+              }
+            ],
+            "url": "{{projectUrl}}/rest/v1/categories?select=id,name,slug,image_url&active=eq.true&order=name.asc"
+          }
+        },
+        {
+          "name": "List active products and variants",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{anonKey}}"
+              }
+            ],
+            "url": "{{projectUrl}}/rest/v1/products?select=id,slug,name,description,price,image_url,category_id,categories(name,slug),product_variants(id,size_label,stock)&active=eq.true&order=name.asc"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customer operations",
+      "item": [
+        {
+          "name": "Check admin status for current user",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{projectUrl}}/rest/v1/rpc/is_shop_admin"
+          }
+        },
+        {
+          "name": "List my cart",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{projectUrl}}/rest/v1/cart_items?select=quantity,variant_id,product_variants!inner(id,size_label,stock,products!inner(id,name,price,image_url,active))&order=created_at.asc"
+          }
+        },
+        {
+          "name": "Add item to cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"p_variant_id\": \"{{variantId}}\",\n  \"p_quantity\": 1\n}"
+            },
+            "url": "{{projectUrl}}/rest/v1/rpc/add_to_cart"
+          }
+        },
+        {
+          "name": "Create COD order from my cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"p_full_name\": \"Development Test Customer\",\n  \"p_phone\": \"0000000000\",\n  \"p_address\": \"1 Sample Street\",\n  \"p_city\": \"Sample City\",\n  \"p_pin_code\": \"000000\",\n  \"p_checkout_key\": \"{{checkoutKey}}\",\n  \"p_variant_id\": null,\n  \"p_quantity\": 1\n}"
+            },
+            "url": "{{projectUrl}}/rest/v1/rpc/create_cod_order",
+            "description": "State-changing: consumes in-stock cart items and clears this test user's cart. The checkout key is idempotent per user; replace it with a new UUID for a new test order."
+          }
+        },
+        {
+          "name": "List my orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{projectUrl}}/rest/v1/orders?select=id,created_at,total,payment_method,payment_status,status,cancelled_at&order=created_at.desc"
+          }
+        },
+        {
+          "name": "Cancel my eligible order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"p_order_id\": \"{{orderId}}\"\n}"
+            },
+            "url": "{{projectUrl}}/rest/v1/rpc/cancel_customer_order",
+            "description": "State-changing: only works for the signed-in owner's placed or confirmed order, and restores its stock."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin operations",
+      "item": [
+        {
+          "name": "Get admin dashboard summary",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{projectUrl}}/rest/v1/rpc/admin_store_summary",
+            "description": "Requires an access token for the exact email-confirmed administrator configured by the SQL function."
+          }
+        },
+        {
+          "name": "Advance order one step",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"p_order_id\": \"{{orderId}}\",\n  \"p_next_status\": \"confirmed\"\n}"
+            },
+            "url": "{{projectUrl}}/rest/v1/rpc/admin_advance_order",
+            "description": "Requires the designated verified admin account and the next permitted status for the order's current state."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+erDiagram
+    AUTH_USERS {
+        uuid id PK "Supabase Auth user; external table"
+    }
+    CATEGORIES {
+        uuid id PK
+        text name UK
+        text slug UK
+        text image_url
+        boolean active
+        timestamptz created_at
+    }
+    PRODUCTS {
+        uuid id PK
+        uuid category_id FK "nullable; ON DELETE SET NULL"
+        text slug UK
+        text name
+        text description
+        numeric price
+        text image_url
+        boolean active
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    %% PRODUCT_VARIANTS is unique on the pair (product_id, size_label).
+    PRODUCT_VARIANTS {
+        uuid id PK
+        uuid product_id FK "ON DELETE CASCADE"
+        text size_label
+        integer stock
+        timestamptz created_at
+    }
+    CART_ITEMS {
+        uuid id PK
+        uuid user_id FK "ON DELETE CASCADE"
+        uuid variant_id FK "ON DELETE CASCADE"
+        integer quantity
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    %% CART_ITEMS is unique on the pair (user_id, variant_id).
+    ORDERS {
+        uuid id PK
+        uuid user_id FK "ON DELETE RESTRICT"
+        text full_name
+        text phone
+        text address
+        text city
+        text pin_code
+        numeric total
+        uuid checkout_key
+        text payment_method
+        text payment_status
+        text status
+        timestamptz cancelled_at
+        timestamptz created_at
+    }
+    %% ORDERS is unique on the pair (user_id, checkout_key).
+    ORDER_ITEMS {
+        uuid id PK
+        uuid order_id FK "ON DELETE CASCADE"
+        uuid variant_id FK "ON DELETE RESTRICT"
+        uuid product_id FK "nullable; ON DELETE SET NULL"
+        text product_name "order snapshot"
+        text image_url "order snapshot"
+        text selected_size
+        numeric unit_price "order snapshot"
+        integer quantity
+        timestamptz created_at
+    }
+    ORDER_STATUS_HISTORY {
+        uuid id PK
+        uuid order_id FK "ON DELETE CASCADE"
+        text status
+        timestamptz created_at
+    }
+    WISHLIST_ITEMS {
+        uuid user_id PK, FK "ON DELETE CASCADE"
+        uuid product_id PK, FK "ON DELETE CASCADE"
+        timestamptz created_at
+    }
+
+    CATEGORIES o|--o{ PRODUCTS : categorizes
+    PRODUCTS ||--o{ PRODUCT_VARIANTS : has
+    AUTH_USERS ||--o{ CART_ITEMS : owns
+    PRODUCT_VARIANTS ||--o{ CART_ITEMS : selected_in
+    AUTH_USERS ||--o{ ORDERS : places
+    ORDERS ||--o{ ORDER_ITEMS : contains
+    PRODUCT_VARIANTS ||--o{ ORDER_ITEMS : ordered_as
+    PRODUCTS o|--o{ ORDER_ITEMS : snapshot_source
+    ORDERS ||--o{ ORDER_STATUS_HISTORY : records
+    AUTH_USERS ||--o{ WISHLIST_ITEMS : saves
+    PRODUCTS ||--o{ WISHLIST_ITEMS : saved_by

@@ -12,8 +12,33 @@ commerce features can access data.
 
 - React + Vite (JavaScript) and React Router
 - Supabase Auth and PostgreSQL
-- RLS on every application table
-- Public/publishable Supabase browser key only
+- Row Level Security (RLS) and PostgreSQL functions for data protection and
+  transactional commerce operations
+- Supabase publishable/anon key in the browser; no service-role key
+
+## Architecture
+
+The browser application uses `@supabase/supabase-js` directly. Supabase Auth
+handles identities and sessions; Supabase PostgREST provides the table API;
+PostgREST RPC invokes database functions for cart changes, checkout,
+cancellation, administrator checks, and status updates. There is no custom
+Express.js server or separate ShopEasy API service. PostgreSQL RLS and function
+checks—not hidden frontend routes—enforce access to customer and administrator
+data.
+
+The application currently requires sign-in before the home page, catalogue, or
+product pages are available.
+
+## Prerequisites
+
+- Node.js `^20.19.0` or `>=22.12.0` (required by the installed Vite 8 release)
+- npm
+- A Supabase project for Auth and PostgreSQL
+- Optional: Postman to exercise the documented Supabase API calls
+
+The current repository has no automated test or type-check script. Use the
+lint and production build commands below, then follow the customer/admin test
+flows after configuring a development Supabase project.
 
 ## Deploy to Netlify
 
@@ -38,32 +63,75 @@ commerce features can access data.
    routes such as `/admin`, `/orders`, and `/products` work when opened or
    refreshed directly.
 
-The live site uses the same Supabase database configured by these environment
-variables. Apply the SQL migrations and seed in the section below before
-testing the live shopping flow. Netlify hosts the frontend; it does not host or
-replace the Supabase database.
+Each deployment uses the Supabase project configured by its own environment
+variables. The live project's database and configuration have not been
+inspected. Netlify hosts the frontend; it does not host or replace the
+Supabase database.
 
-## Configure and apply SQL
+## Local setup and database configuration
 
 1. Copy `.env.example` to `.env`, then add the Supabase project URL and public
-   publishable (or anon) key. Never put the database password or service-role
-   key in a frontend variable.
-2. In the Supabase SQL Editor, run these files in order:
+   publishable (or legacy anon) key as `VITE_SUPABASE_URL` and
+   `VITE_SUPABASE_ANON_KEY`. These values are included in the browser build.
+   Never put a database password or service-role/secret key in a frontend
+   variable.
 
-   1. `supabase/migrations/202610180001_is_shop_admin.sql`
-   2. `supabase/migrations/20261018000200_shopping_schema.sql`
-   3. `supabase/migrations/202610180003_wishlist.sql`
-   4. `supabase/migrations/202610220001_auto_order_progression.sql`
-   5. `supabase/seed.sql`
+   Example values only:
 
-   The migration adds tables with `IF NOT EXISTS` and the seed uses unique slugs
-   and `ON CONFLICT DO NOTHING`. Apply it first in a project with no ShopEasy
-   commerce tables; it does not drop or recreate data. To add or refresh the
-   sample catalogue later, run `supabase/seed.sql` again.
-3. In **Authentication → URL Configuration**, set the local URL as described
+   ```dotenv
+   VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-supabase-publishable-or-anon-key
+   ```
+2. For a **clean development database**, choose exactly one database setup
+   path:
+
+   - **Migration path (recommended):** In the Supabase SQL Editor, apply
+     `supabase/migrations/202610180001_is_shop_admin.sql`,
+     `supabase/migrations/20261018000200_shopping_schema.sql`,
+     `supabase/migrations/202610180003_wishlist.sql`, and
+     `supabase/migrations/202610220001_auto_order_progression.sql`, in that
+     order.
+   - **Consolidated schema path:** Apply `supabase/schema.sql` to a clean
+     development database instead of applying the four migration files. This
+     is a submission snapshot of those migrations; it was not run against or
+     compared with the live database.
+
+   Do not apply the consolidated schema and the same migrations to the same
+   database. The auto-progression migration requires `pg_cron` to be available
+   and permitted in the target Supabase project. Never use the consolidated
+   submission schema as an unreviewed live-database migration.
+3. After creating the schema in a clean development project, run
+   `supabase/seed.sql` to add seven sample categories, products, and variants.
+   The seed uses `ON CONFLICT DO NOTHING`; it does not update or delete
+   conflicting catalogue data. Keep production data out of development tests.
+4. In **Authentication → URL Configuration**, set the local URL as described
    under Supabase Auth settings below.
-4. Run `npm install`, `npm run lint`, `npm run build`, then
-   `npm run dev -- --host 127.0.0.1`.
+5. Install and run the app from the repository root:
+
+   ```powershell
+   npm ci
+   npm run lint
+   npm run build
+   npm run dev -- --host 127.0.0.1
+   ```
+
+   Vite prints the local address when the dev server is ready.
+
+## Submission documentation
+
+- [Submission audit](./docs/SUBMISSION-AUDIT.md) — repository findings and
+  verification boundaries.
+- [API documentation](./docs/API-documentation.md) — verified Supabase Auth,
+  PostgREST, and RPC operations; no custom Express routes are claimed.
+- [Postman collection](./docs/postman/ShopEasy.postman_collection.json) and
+  [Postman environment template](./docs/postman/ShopEasy.postman_environment.json)
+  — fill in credentials locally and use a development project.
+- [ER diagram](./docs/ER-diagram.mmd) — Mermaid relationships for the
+  repository-defined database tables.
+- [`supabase/schema.sql`](./supabase/schema.sql) — consolidated copy of the
+  checked-in migrations for clean development/submission review.
+- [`supabase/seed.sql`](./supabase/seed.sql) — repeatable sample catalogue
+  seed; apply only after setting up the schema.
 
 ### Administrator authorization
 
@@ -73,6 +141,12 @@ does not read browser storage or editable profile data. Product writes,
 administrator order reads, administrator status updates, and dashboard summary
 are protected by RLS and/or database functions that call the same function.
 Registration never accepts a role.
+
+The email is an authorization identifier, not a password or an admin bypass.
+An evaluator must create or use the corresponding user in the configured
+Supabase Auth project and complete any required email confirmation. This
+repository does not prove that the account exists in the live project and does
+not include or require an admin password.
 
 Product activation and deactivation update the product row directly and request
 the changed row as confirmation. PostgreSQL RLS permits the operation only for
@@ -164,6 +238,10 @@ application never stores passwords itself.
    transitions and cancelled orders.
 5. Sign in as an ordinary customer and verify `/admin` refuses access and RLS
    prevents querying another customer's orders.
+6. Apply the auto-progression migration in the development database and verify
+   its `pg_cron` job advances a test order at the configured delays. Manual
+   admin confirmation remains available; verify the scheduled job in Supabase
+   rather than assuming the migration ran.
 
 ## Project structure
 
@@ -171,19 +249,31 @@ application never stores passwords itself.
 src/
   auth/                         Auth state and hook
   components/                   Product imagery and cards
+  context/                      Wishlist state
   lib/                          Supabase client and shop formatting
   pages/                        Shop, detail, bag, checkout, orders, admin
   App.jsx                       Protected routes and shared header
 supabase/
-  migrations/                   Admin authorization and schema/RPC/RLS
-  seed.sql                      Seven categories and thirty-six repeatable products
+  migrations/                   Admin, schema/RPC/RLS, wishlist, and cron job
+  schema.sql                    Consolidated migration snapshot for clean dev
+  seed.sql                      Seven categories and 36 sample products
+docs/
+  SUBMISSION-AUDIT.md
+  API-documentation.md
+  ER-diagram.mmd
+  postman/                      Collection and placeholder environment
 ```
 
-## Known verification boundary
+## Known limitations and verification boundary
 
-The app build and linter can run locally. The SQL migration cannot be applied
-or end-to-end database workflows verified from this workspace because no local
-PostgreSQL/Supabase CLI is installed and the browser key cannot execute DDL.
-Apply the SQL files in the Supabase SQL Editor, then run the customer/admin
-flows above to verify the live project. No real order/payment or courier
-tracking has been tested or integrated.
+Order status is application-managed and scheduled; no courier/carrier tracking
+is integrated. Checkout is Cash on Delivery only; there is no payment gateway
+or settlement integration. Notification preferences are stored, but order or
+product emails are not sent. Browsing is sign-in gated. The repository has no
+test suite or type-check script.
+
+The checked-in SQL describes the repository's intended schema, not a verified
+live database dump. Live migrations, policies, Auth email/redirect settings,
+admin account, environment variables, and cron job were not checked from this
+workspace. Apply and test SQL only in a clean development Supabase project
+first. `npm run build` and `npm run lint` validate frontend code only.
