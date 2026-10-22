@@ -133,6 +133,128 @@ Supabase database.
 - [`supabase/seed.sql`](./supabase/seed.sql) — repeatable sample catalogue
   seed; apply only after setting up the schema.
 
+## Screenshots
+
+The supplied application captures are stored locally so these README images do
+not depend on the external image host. Personal profile values and order details
+visible in the supplied captures have been redacted. See the
+[screenshot checklist](./screenshots/README.md) for the remaining views that
+still need capturing.
+
+### Home and collections
+
+![ShopEasy home page](./screenshots/captures/home-page.png)
+
+![Explore the shop](./screenshots/captures/explore-page.png)
+
+![Accessories collection](./screenshots/captures/accessories-collection.png)
+
+![Sarees collection](./screenshots/captures/sarees-collection.png)
+
+### Customer account
+
+![Shopping bag with quantities and total](./screenshots/captures/shopping-bag.png)
+
+![Wishlist](./screenshots/captures/wishlist.png)
+
+![Order history with personal order details redacted](./screenshots/captures/orders-page.png)
+
+![Settings with profile values redacted](./screenshots/captures/settings-page.png)
+
+![ShopEasy sign-in page](./screenshots/captures/login-page.png)
+
+### Admin
+
+![Admin dashboard and product form](./screenshots/captures/admin-page.png)
+
+## ER diagram
+
+The schema-aligned diagram source is [`docs/ER-diagram.mmd`](./docs/ER-diagram.mmd).
+User profile fields are stored in Supabase Auth user metadata; there is no
+separate ShopEasy profile table. The diagram below shows the repository-defined
+application tables and their foreign-key relationships. It describes the
+checked-in schema, not a verified live database export.
+
+The [supplied ER diagram image](./docs/diagrams/ER-diagram-draft.png) is also
+kept in a separate diagrams folder as a draft. It does not match the checked-in
+database schema (for example, it includes a `USERS` table and omits wishlist,
+product variants, and order-status history), so use the Mermaid diagram below
+and `supabase/schema.sql` as the submission reference.
+
+![User-supplied ER diagram draft — not schema-verified](./docs/diagrams/ER-diagram-draft.png)
+
+```mermaid
+erDiagram
+    AUTH_USERS {
+        uuid id PK "Supabase Auth; external table"
+        jsonb raw_user_meta_data "Profile metadata"
+    }
+    CATEGORIES {
+        uuid id PK
+        text name UK
+        text slug UK
+    }
+    PRODUCTS {
+        uuid id PK
+        uuid category_id FK "nullable"
+        text slug UK
+        numeric price
+    }
+    PRODUCT_VARIANTS {
+        uuid id PK
+        uuid product_id FK
+        text size_label
+        integer stock
+    }
+    CART_ITEMS {
+        uuid id PK
+        uuid user_id FK
+        uuid variant_id FK
+        integer quantity
+    }
+    ORDERS {
+        uuid id PK
+        uuid user_id FK
+        uuid checkout_key
+        numeric total
+        text status
+    }
+    ORDER_ITEMS {
+        uuid id PK
+        uuid order_id FK
+        uuid variant_id FK
+        uuid product_id FK "nullable"
+        numeric unit_price
+        integer quantity
+    }
+    ORDER_STATUS_HISTORY {
+        uuid id PK
+        uuid order_id FK
+        text status
+    }
+    WISHLIST_ITEMS {
+        uuid user_id PK, FK
+        uuid product_id PK, FK
+    }
+    %% ORDERS is unique on (user_id, checkout_key); variants and cart rows also have composite unique keys.
+    CATEGORIES o|--o{ PRODUCTS : categorizes
+    PRODUCTS ||--o{ PRODUCT_VARIANTS : has
+    AUTH_USERS ||--o{ CART_ITEMS : owns
+    PRODUCT_VARIANTS ||--o{ CART_ITEMS : selected_in
+    AUTH_USERS ||--o{ ORDERS : places
+    ORDERS ||--o{ ORDER_ITEMS : contains
+    PRODUCT_VARIANTS ||--o{ ORDER_ITEMS : ordered_as
+    PRODUCTS o|--o{ ORDER_ITEMS : snapshot_source
+    ORDERS ||--o{ ORDER_STATUS_HISTORY : records
+    AUTH_USERS ||--o{ WISHLIST_ITEMS : saves
+    PRODUCTS ||--o{ WISHLIST_ITEMS : saved_by
+```
+
+The checked-in `.mmd` file includes the schema's additional columns and
+composite-key notes. No Mermaid-to-PNG/PDF renderer is installed in this
+workspace; the Mermaid source can be rendered by GitHub Markdown or a
+Mermaid-compatible editor.
+
 ### Administrator authorization
 
 `public.is_shop_admin()` checks the signed-in Auth user's exact email
@@ -261,7 +383,11 @@ docs/
   SUBMISSION-AUDIT.md
   API-documentation.md
   ER-diagram.mmd
+  diagrams/                      Supplied ER diagram draft image
   postman/                      Collection and placeholder environment
+screenshots/
+  README.md                     Remaining screenshot capture checklist
+  captures/                      Supplied, privacy-redacted PNG screenshots
 ```
 
 ## Known limitations and verification boundary

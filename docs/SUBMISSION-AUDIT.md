@@ -1,7 +1,8 @@
 # ShopEasy Internship Submission Audit
 
 **Audit date:** 2026-10-22
-**Repository revision:** `b495a0b` (`Add automatic order status progression`)
+**Source review revision:** `750cfac` (`Prepare internship submission documentation`)
+**Final-preparation documentation changes:** Uncommitted in the worktree.
 **Scope:** Repository inspection only. No live Supabase database was queried or
 modified.
 
@@ -14,11 +15,13 @@ history/cancellation, an admin dashboard, and database-scheduled order status
 progression. The frontend calls Supabase through `@supabase/supabase-js`; there
 is no custom Express server or other application API server in the repository.
 
-The repository contains versioned SQL migrations and an idempotent sample
-catalogue seed. It does not yet contain a consolidated `schema.sql`, API
-documentation, a Postman collection, or an ER diagram. The live database,
-email configuration, scheduled-job availability, and actual admin account
-cannot be verified from the source tree.
+The repository contains versioned SQL migrations, an ordered consolidated
+`supabase/schema.sql` snapshot, a repeatable sample catalogue seed, API
+documentation, a Postman collection, a Mermaid ER source, and ten supplied
+application screenshots stored under `screenshots/captures/`. Personal profile
+values and order details in the relevant images have been redacted. The live database, email configuration,
+scheduled-job availability, and actual admin account cannot be verified from
+the source tree.
 
 ## Existing deliverables and verified implementation
 
@@ -95,24 +98,41 @@ cannot be verified from the source tree.
   `VITE_SUPABASE_ANON_KEY`. `.gitignore` excludes `.env` and other local env
   files. The private local `.env` was not opened or copied.
 
-## Missing submission deliverables
+## Submission deliverable status
 
-No `docs/` directory or existing API specification, OpenAPI file, Postman
-collection, or ER diagram was found in the tracked repository. There is also no
-consolidated schema file. `package.json` defines `dev`, `build`, `lint`, and
-`preview` scripts, but no test or type-check script; no tracked test/spec files
-were found.
+`package.json` defines `dev`, `build`, `lint`, and `preview` scripts, but no test
+or type-check script; no tracked test/spec files were found.
 
-The following files should be created or updated in later phases:
+| Required deliverable | Status verified in repository | Actual file(s) to add or correct |
+| --- | --- | --- |
+| Audit of implementation, risks, requirements, and unknowns | Present; implementation findings are based on `750cfac`, with final-preparation deliverable status updated in this worktree. | `docs/SUBMISSION-AUDIT.md` |
+| Submission schema based on migrations | Present as an ordered snapshot of checked-in migrations; not compared with or executed against a live database. | `supabase/schema.sql` only if migrations change; preserve `supabase/migrations/*.sql`. |
+| Safe sample seed | Present: seven categories, 36 products, variants, and `ON CONFLICT DO NOTHING`; no customer records or credentials. | `supabase/seed.sql` only if a concrete issue is found. |
+| Application screenshots | Ten supplied captures are stored locally and embedded in README: home, explore/collections, bag, wishlist, order history, settings, sign-in, and admin dashboard. Personal profile values/order details are redacted. Product details, checkout, confirmation, expanded tracking/cancellation, and admin order-management views remain to be captured. | `screenshots/captures/*.png`, `screenshots/README.md`, and `README.md`. |
+| ER diagram | Schema-aligned Mermaid source is embedded in README. The user-supplied PNG is kept in `docs/diagrams/` but is marked as a draft because it conflicts with the checked-in schema. | `docs/ER-diagram.mmd` (authoritative repository diagram), `docs/diagrams/ER-diagram-draft.png` (reference only), and `README.md`. |
+| API documentation | Present; documents verified Supabase Auth, PostgREST, and RPC calls, and does not claim a custom Express API. | `docs/API-documentation.md` only if operations change. |
+| Postman collection and environment template | Present; placeholders only, no service-role key or private credentials. | `docs/postman/ShopEasy.postman_collection.json` and `docs/postman/ShopEasy.postman_environment.json` only if operations change. |
+| README submission guide | Present and updated with screenshot status/checklist and Mermaid diagram, alongside setup, API, database, admin, limitations, and deployment information. | `README.md` |
+| Historical development commits | Existing history is preserved. Inspected history contains commits dated 2026-10-17, 2026-10-18, and 2026-10-22; it contains no commits dated 2026-10-19 through 2026-10-21. | No historical changes; review and commit current work honestly. |
+| Tests/type-check | No test or type-check script and no tracked test files found. | No fabricated test files; add tests only in a separate implementation task if required. |
 
-| Path | Planned work |
-| --- | --- |
-| `docs/SUBMISSION-AUDIT.md` | Created in Phase 1; record findings and verification boundaries. |
-| `supabase/schema.sql` | Create a consolidated, ordered submission schema based only on the checked-in migrations; keep migrations intact. Do not run it against the live project. |
-| `docs/API-documentation.md` | Document verified Supabase Auth, PostgREST table operations, and RPC operations. Explicitly distinguish them from custom application routes. |
-| `docs/postman/ShopEasy.postman_collection.json` | Create requests for genuine Supabase HTTP endpoints, parameterized with project URL, public key, and session-token variables. Include no service-role key or private secret. |
-| `docs/ER-diagram.mmd` | Create a Mermaid ER diagram for the repository-defined application tables and relationships. |
-| `README.md` | Update project overview, architecture, prerequisites, local setup, safe database/seed instructions, API and Postman links, admin behavior, test flows, limitations, and deployment. |
+### Files added or updated for this final preparation
+
+- `docs/SUBMISSION-AUDIT.md` — current deliverable status and repository
+  verification boundaries.
+- `screenshots/README.md` — checklist of the supplied captures and remaining
+  screens; no placeholder images were created.
+- `screenshots/captures/*.png` — ten supplied captures stored locally; profile
+  and order details are redacted where visible.
+- `README.md` — screenshot status/checklist, submission links, and inline
+  Mermaid ER diagram; no nonexistent image files are referenced.
+- `docs/ER-diagram.mmd` — schema-aligned diagram source.
+- `docs/diagrams/ER-diagram-draft.png` and
+  `docs/diagrams/README.md` — user-supplied diagram retained in a dedicated
+  folder with its schema mismatches documented.
+- `supabase/schema.sql`, `supabase/seed.sql`, original migrations, API docs,
+  and Postman files were reviewed and preserved; no unrelated SQL or app code
+  was changed.
 
 `supabase/seed.sql` does not appear to need a rewrite based on this repository
 review: the sample data is realistic, repeatable, and non-destructive for
@@ -189,16 +209,26 @@ The following cannot be established from repository contents alone:
   rubric requirement before adding any server framework.
 - Whether live database exports, screenshots, test evidence, or sample user
   accounts are required by the evaluator.
+- The ten supplied screenshots are stored locally and linked in README.
+  Product details, checkout/confirmation, expanded tracking/cancellation, and
+  fuller admin product/order-management views still need captures. Supplied
+  order/test data and live project configuration were not independently
+  verified.
+- A Mermaid CLI renderer is not installed. The `.mmd` source can be viewed with
+  a Mermaid-compatible renderer or shown in GitHub using a fenced Mermaid block.
 
 ## Phase 1 validation snapshot
 
-- `git status` was clean before this audit file was created.
+- `git status` was clean before this final preparation task.
 - `npm run lint` completed with warnings and no reported errors:
   `react(set-state-in-effect)` in Cart and Orders pages.
 - `npm run build` succeeded. Vite reported that the minified JavaScript bundle
   is larger than 500 kB.
 - The installed Vite version is 8.3.4 and declares Node.js `^20.19.0 ||
   >=22.12.0`; the inspected environment uses Node.js 24.21.0.
+- The existing Git history was inspected and left unchanged. It contains
+  commits on 2026-10-17, 2026-10-18, and 2026-10-22, and does not establish
+  daily commits for the dates in between.
 - These checks validate the current frontend source only; they do not execute
   SQL migrations or test Supabase policies, Auth configuration, cron, or live
   workflows.

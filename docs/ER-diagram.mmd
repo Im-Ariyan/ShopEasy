@@ -1,6 +1,7 @@
 erDiagram
     AUTH_USERS {
         uuid id PK "Supabase Auth user; external table"
+        jsonb raw_user_meta_data "Profile metadata; not ShopEasy-owned"
     }
     CATEGORIES {
         uuid id PK
