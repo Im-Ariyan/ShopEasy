@@ -11,6 +11,7 @@ function ShopPage() {
   const [sort, setSort] = useState('featured')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showBackToTop, setShowBackToTop] = useState(() => window.scrollY > 320)
 
   useEffect(() => {
     let mounted = true
@@ -42,6 +43,15 @@ function ShopPage() {
 
     loadCatalogue()
     return () => { mounted = false }
+  }, [])
+
+  useEffect(() => {
+    function updateBackToTopVisibility() {
+      setShowBackToTop(window.scrollY > 320)
+    }
+
+    window.addEventListener('scroll', updateBackToTopVisibility, { passive: true })
+    return () => window.removeEventListener('scroll', updateBackToTopVisibility)
   }, [])
 
   const filteredProducts = useMemo(() => {
@@ -134,7 +144,6 @@ function ShopPage() {
           <section className="catalogue-category" id={`collection-${category.slug}`} key={category.id} aria-labelledby={`heading-${category.slug}`}>
             <div className="section-heading-row">
               <h2 id={`heading-${category.slug}`}>{category.name} <span>({category.products.length})</span></h2>
-              <button className="text-button" type="button" onClick={() => scrollToCollection()}>Back to top</button>
             </div>
             <div className="product-grid">
               {category.products.map((product) => <ProductCard key={product.id} product={product} />)}
@@ -152,6 +161,19 @@ function ShopPage() {
           </section>
         )}
       </section>
+      {showBackToTop && (
+        <button
+          className="back-to-top-button"
+          type="button"
+          aria-label="Back to top"
+          title="Back to top"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+            <path d="M12 19V5m0 0L6 11m6-6 6 6" />
+          </svg>
+        </button>
+      )}
     </main>
   )
 }
