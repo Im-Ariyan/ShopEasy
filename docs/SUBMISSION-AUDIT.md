@@ -109,9 +109,9 @@ or type-check script; no tracked test/spec files were found.
 | Submission schema based on migrations | Present as an ordered snapshot of checked-in migrations; not compared with or executed against a live database. | `supabase/schema.sql` only if migrations change; preserve `supabase/migrations/*.sql`. |
 | Safe sample seed | Present: seven categories, 36 products, variants, and `ON CONFLICT DO NOTHING`; no customer records or credentials. | `supabase/seed.sql` only if a concrete issue is found. |
 | Application screenshots | Ten supplied captures are stored locally and embedded in README: home, explore/collections, bag, wishlist, order history, settings, sign-in, and admin dashboard. Personal profile values/order details are redacted. Product details, checkout, confirmation, expanded tracking/cancellation, and admin order-management views remain to be captured. | `screenshots/captures/*.png`, `screenshots/README.md`, and `README.md`. |
-| ER diagram | Schema-aligned Mermaid source is embedded in README. The user-supplied PNG is kept in `docs/diagrams/` but is marked as a draft because it conflicts with the checked-in schema. | `docs/ER-diagram.mmd` (authoritative repository diagram), `docs/diagrams/ER-diagram-draft.png` (reference only), and `README.md`. |
-| API documentation | Present; documents verified Supabase Auth, PostgREST, and RPC calls, and does not claim a custom Express API. | `docs/API-documentation.md` only if operations change. |
-| Postman collection and environment template | Present; placeholders only, no service-role key or private credentials. | `docs/postman/ShopEasy.postman_collection.json` and `docs/postman/ShopEasy.postman_environment.json` only if operations change. |
+| ER diagram | Schema-aligned Mermaid source is embedded in README. The user-supplied PNG is kept in `docs/diagrams/` but is marked as a draft because it conflicts with the checked-in schema. | `docs/diagrams/ER-diagram.mmd` (authoritative repository diagram), `docs/diagrams/ER-diagram-draft.png` (reference only), and `README.md`. |
+| API documentation | Present; documents verified Supabase Auth, PostgREST, and RPC calls, and does not claim a custom Express API. | `docs/api/API-documentation.md` only if operations change. |
+| Postman collection and environment template | Present; placeholders only, no service-role key or private credentials. | `docs/api/postman/ShopEasy.postman_collection.json` and `docs/api/postman/ShopEasy.postman_environment.json` only if operations change. |
 | README submission guide | Present and updated with screenshot status/checklist and Mermaid diagram, alongside setup, API, database, admin, limitations, and deployment information. | `README.md` |
 | Historical development commits | Existing history is preserved. Inspected history contains commits dated 2026-10-17, 2026-10-18, and 2026-10-22; it contains no commits dated 2026-10-19 through 2026-10-21. | No historical changes; review and commit current work honestly. |
 | Tests/type-check | No test or type-check script and no tracked test files found. | No fabricated test files; add tests only in a separate implementation task if required. |
@@ -126,13 +126,16 @@ or type-check script; no tracked test/spec files were found.
   and order details are redacted where visible.
 - `README.md` — screenshot status/checklist, submission links, and inline
   Mermaid ER diagram; no nonexistent image files are referenced.
-- `docs/ER-diagram.mmd` — schema-aligned diagram source.
-- `docs/diagrams/ER-diagram-draft.png` and
-  `docs/diagrams/README.md` — user-supplied diagram retained in a dedicated
-  folder with its schema mismatches documented.
-- `supabase/schema.sql`, `supabase/seed.sql`, original migrations, API docs,
-  and Postman files were reviewed and preserved; no unrelated SQL or app code
-  was changed.
+- `docs/diagrams/ER-diagram.mmd` — schema-aligned diagram source.
+- `docs/diagrams/ER-diagram-draft.png`, `docs/diagrams/ER-diagram.mmd`, and
+  `docs/diagrams/README.md` — supplied draft and schema-aligned source in a
+  dedicated folder, with the draft's mismatches documented.
+- `docs/api/README.md`, `docs/api/API-documentation.md`, and
+  `docs/api/postman/` — verified API documentation, its index, and the
+  Postman collection/environment template.
+- `supabase/schema.sql`, `supabase/seed.sql`, and original migrations remain
+  together under `supabase/`, the database setup folder; verified API
+  documentation and Postman assets are organized under `docs/api/`.
 
 `supabase/seed.sql` does not appear to need a rewrite based on this repository
 review: the sample data is realistic, repeatable, and non-destructive for

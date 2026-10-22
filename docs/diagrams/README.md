@@ -5,7 +5,7 @@
   Supabase schema: it depicts a `USERS` table instead of Supabase Auth, and
   omits `product_variants`, `wishlist_items`, and `order_status_history`. Some
   shown columns and relationships also differ from the migrations.
-- [`../ER-diagram.mmd`](../ER-diagram.mmd) is the schema-aligned Mermaid
+- [`ER-diagram.mmd`](./ER-diagram.mmd) is the schema-aligned Mermaid
   diagram. Use it with [`../../supabase/schema.sql`](../../supabase/schema.sql)
   as the repository's submission reference.
 

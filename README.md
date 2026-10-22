@@ -121,12 +121,14 @@ Supabase database.
 
 - [Submission audit](./docs/SUBMISSION-AUDIT.md) — repository findings and
   verification boundaries.
-- [API documentation](./docs/API-documentation.md) — verified Supabase Auth,
+- [API and Postman index](./docs/api/README.md) — API documentation and
+  environment-safe test requests.
+- [API documentation](./docs/api/API-documentation.md) — verified Supabase Auth,
   PostgREST, and RPC operations; no custom Express routes are claimed.
-- [Postman collection](./docs/postman/ShopEasy.postman_collection.json) and
-  [Postman environment template](./docs/postman/ShopEasy.postman_environment.json)
+- [Postman collection](./docs/api/postman/ShopEasy.postman_collection.json) and
+  [Postman environment template](./docs/api/postman/ShopEasy.postman_environment.json)
   — fill in credentials locally and use a development project.
-- [ER diagram](./docs/ER-diagram.mmd) — Mermaid relationships for the
+- [ER diagram](./docs/diagrams/ER-diagram.mmd) — Mermaid relationships for the
   repository-defined database tables.
 - [`supabase/schema.sql`](./supabase/schema.sql) — consolidated copy of the
   checked-in migrations for clean development/submission review.
@@ -169,7 +171,8 @@ still need capturing.
 
 ## ER diagram
 
-The schema-aligned diagram source is [`docs/ER-diagram.mmd`](./docs/ER-diagram.mmd).
+The schema-aligned diagram source is
+[`docs/diagrams/ER-diagram.mmd`](./docs/diagrams/ER-diagram.mmd).
 User profile fields are stored in Supabase Auth user metadata; there is no
 separate ShopEasy profile table. The diagram below shows the repository-defined
 application tables and their foreign-key relationships. It describes the
@@ -267,8 +270,10 @@ Registration never accepts a role.
 The email is an authorization identifier, not a password or an admin bypass.
 An evaluator must create or use the corresponding user in the configured
 Supabase Auth project and complete any required email confirmation. This
-repository does not prove that the account exists in the live project and does
-not include or require an admin password.
+repository does not prove that the account exists in the live project. The
+administrator login uses `aryanmajumder8565@gmail.com`; set or recover its
+password through Supabase Auth for the configured project. No admin password
+is published or stored in this repository.
 
 Product activation and deactivation update the product row directly and request
 the changed row as confirmation. PostgreSQL RLS permits the operation only for
@@ -381,10 +386,14 @@ supabase/
   seed.sql                      Seven categories and 36 sample products
 docs/
   SUBMISSION-AUDIT.md
-  API-documentation.md
-  ER-diagram.mmd
-  diagrams/                      Supplied ER diagram draft image
-  postman/                      Collection and placeholder environment
+  api/
+    README.md                    API documentation and Postman index
+    API-documentation.md        Verified Supabase Auth, REST, and RPC operations
+    postman/                    Collection and placeholder environment
+  diagrams/
+    ER-diagram.mmd              Schema-aligned Mermaid diagram
+    ER-diagram-draft.png        Supplied draft image; see folder README
+    README.md                    Diagram status and schema notes
 screenshots/
   README.md                     Remaining screenshot capture checklist
   captures/                      Supplied, privacy-redacted PNG screenshots
